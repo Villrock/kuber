@@ -36,11 +36,13 @@ spec:
   - type: Resource
     resource:
       name: cpu
-      targetAverageUtilization: 70
+      target:
+      AverageUtilization: 70
   - type: Resource
     resource:
       name: memory
-      targetAverageUtilization: 80
+      target:
+      AverageUtilization: 80
 
 ---
 apiVersion: v1
