@@ -1,48 +1,46 @@
- #---------------------------------------------------------------------
+#-------------------------------------------------------------
 apiVersion : apps/v1
 kind: Deployment
 metadata:
-  name: my-tomcat-deployment
+  name: my-web-deployment-autoscaling
   labels:
-    app : my-k8s-deployment-tomcat
+    app  : my-k8s-application
+    env  : prod
+    owner: DenisAstahov
 spec:
-  #replicas: 2 # Don't need this anymore as we are using HorizontalPodAutoscaler
+#  replicas: 2   # Don't need this anymore as we are using HorizontalPodAutoscaler
   selector:
     matchLabels:
-      project: tomcat
+      project: mossad
   template:
     metadata:
       labels:
-        project: tomcat   # Service will look for those PODS Labels!!!
+        project: mossad
     spec:
       containers:
-        - name : tomcat
-          image: tomcat:8.5.38
+        - name : mossad-web
+          image: adv4000/k8sphp:version2
           ports:
-            - containerPort: 8080
+            - containerPort: 80
 
 ---
 apiVersion: autoscaling/v2beta1
 kind: HorizontalPodAutoscaler
 metadata:
-  name: my-tomcat-autoscaling
+  name: my-autoscaling
 spec:
   scaleTargetRef:
     apiVersion: apps/v2beta1v1
     kind: Deployment
-    name: my-tomcat-deployment
-  minReplicas: 1
-  maxReplicas: 3
+    name: my-web-deployment-autoscaling
+  minReplicas: 2
+  maxReplicas: 6
   metrics:
   - type: Resource
     resource:
       name: cpu
-      target:
-         type: Utilization
-         averageUtilization: 60
+      targetAverageUtilization: 70
   - type: Resource
     resource:
       name: memory
-      target:
-         type: Utilization
-         averageUtilization: 60
+      targetAverageUtilization: 80
