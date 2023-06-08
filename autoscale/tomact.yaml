@@ -1,0 +1,48 @@
+ #---------------------------------------------------------------------
+apiVersion : apps/v1
+kind: Deployment
+metadata:
+  name: my-tomcat-deployment
+  labels:
+    app : my-k8s-deployment-tomcat
+spec:
+  #replicas: 2 # Don't need this anymore as we are using HorizontalPodAutoscaler
+  selector:
+    matchLabels:
+      project: tomcat
+  template:
+    metadata:
+      labels:
+        project: tomcat   # Service will look for those PODS Labels!!!
+    spec:
+      containers:
+        - name : tomcat
+          image: tomcat:8.5.38
+          ports:
+            - containerPort: 8080
+
+---
+apiVersion: autoscaling/v2beta1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: my-tomcat-autoscaling
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v2beta1v1
+    kind: Deployment
+    name: my-tomcat-deployment
+  minReplicas: 1
+  maxReplicas: 3
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+         type: Utilization
+         averageUtilization: 60
+  - type: Resource
+    resource:
+      name: memory
+      target:
+         type: Utilization
+         averageUtilization: 60
